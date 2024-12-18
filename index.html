@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Previsão de Preço de Casas</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .form-container {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            background-color: white;
+        }
+        body {
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+        .result {
+            font-size: 24px;
+            font-weight: bold;
+            color: #198754;
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <h2 class="text-center mb-4">Previsão de Preço de Casas</h2>
+            <form id="predictionForm" class="mb-4">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Área (m²)</label>
+                        <input type="number" class="form-control" name="area" value="7420" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Quartos</label>
+                        <input type="number" class="form-control" name="bedrooms" value="4" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Banheiros</label>
+                        <input type="number" class="form-control" name="bathrooms" value="2" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Andares</label>
+                        <input type="number" class="form-control" name="stories" value="3" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Estrada Principal</label>
+                        <select class="form-select" name="mainroad">
+                            <option value="1" selected>Sim</option>
+                            <option value="0">Não</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Quarto de Hóspedes</label>
+                        <select class="form-select" name="guestroom">
+                            <option value="1">Sim</option>
+                            <option value="0" selected>Não</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Porão</label>
+                        <select class="form-select" name="basement">
+                            <option value="1">Sim</option>
+                            <option value="0" selected>Não</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Aquecimento de Água</label>
+                        <select class="form-select" name="hotwaterheating">
+                            <option value="1">Sim</option>
+                            <option value="0" selected>Não</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Ar Condicionado</label>
+                        <select class="form-select" name="airconditioning">
+                            <option value="1" selected>Sim</option>
+                            <option value="0">Não</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Vagas de Garagem</label>
+                        <input type="number" class="form-control" name="parking" value="2" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Área Preferencial</label>
+                        <select class="form-select" name="prefarea">
+                            <option value="1" selected>Sim</option>
+                            <option value="0">Não</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Estado da Mobília</label>
+                        <select class="form-select" name="furnishingstatus">
+                            <option value="0">Não Mobiliado</option>
+                            <option value="1" selected>Semi-Mobiliado</option>
+                            <option value="2">Mobiliado</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg">Prever Preço da Casa</button>
+                </div>
+            </form>
+            <div id="result" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('predictionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+            
+            // Converter valores para números
+            for (let key in data) {
+                data[key] = Number(data[key]);
+            }
+
+            try {
+                const response = await fetch('http://localhost:3000/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                const resultDiv = document.getElementById('result');
+                resultDiv.style.display = 'block';
+                resultDiv.textContent = `Preço Previsto: ${result.predicted_price}`;
+            } catch (error) {
+                alert('Erro ao fazer a previsão: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html>

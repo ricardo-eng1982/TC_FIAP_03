@@ -1,38 +1,17 @@
 const express = require('express');
+const cors = require('cors');
 const { initializeDatabase, getAllHouses } = require('./database');
 const { spawn } = require('child_process');
 
 const app = express();
 const port = 3000;
 
+// Adicionar CORS e JSON middleware
+app.use(cors());
 app.use(express.json());
 
-function predictPrice(data) {
-    return new Promise((resolve, reject) => {
-        const python = spawn('python', ['predict.py', JSON.stringify(data)]);
-        let result = '';
-
-        python.stdout.on('data', (data) => {
-            result += data.toString();
-        });
-
-        python.stderr.on('data', (data) => {
-            console.error(`Error: ${data}`);
-        });
-
-        python.on('close', (code) => {
-            if (code !== 0) {
-                reject('Erro ao executar a previsão');
-                return;
-            }
-            try {
-                resolve(JSON.parse(result));
-            } catch (e) {
-                reject('Erro ao processar resultado');
-            }
-        });
-    });
-}
+// Servir arquivos estáticos (incluindo o index.html)
+app.use(express.static('public'));
 
 async function startServer() {
     try {
@@ -65,6 +44,33 @@ async function startServer() {
     } catch (error) {
         console.error('Erro ao inicializar:', error);
     }
+}
+
+function predictPrice(data) {
+    return new Promise((resolve, reject) => {
+        const python = spawn('python', ['predict.py', JSON.stringify(data)]);
+        let result = '';
+
+        python.stdout.on('data', (data) => {
+            result += data.toString();
+        });
+
+        python.stderr.on('data', (data) => {
+            console.error(`Error: ${data}`);
+        });
+
+        python.on('close', (code) => {
+            if (code !== 0) {
+                reject('Erro ao executar a previsão');
+                return;
+            }
+            try {
+                resolve(JSON.parse(result));
+            } catch (e) {
+                reject('Erro ao processar resultado');
+            }
+        });
+    });
 }
 
 startServer();

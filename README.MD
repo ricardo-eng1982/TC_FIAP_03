@@ -63,6 +63,9 @@ Exemplo de body:
     "furnishingstatus": 1
 }
 ```
+## Aplicação Real
+Acesse o index.html para usar o modelo com iunterface visual.
+![alt text](image.png)
 
 ## Tecnologias Utilizadas
 - Node.js
